@@ -2,10 +2,14 @@ from pathlib import Path
 import json
 
 
-def load_json_schema(schema_path: Path = Path("docs/output_spec.md")) -> str:
+def load_json_schema(schema_path: Path = None) -> str:
     """
     Extract JSON schema block from markdown file.
     """
+    if schema_path is None:
+        base_dir = Path(__file__).resolve().parents[2]  # backend/src/utils → project root
+        schema_path = base_dir / "docs" / "output_spec.md"
+
     in_block = False
     lines = []
 
