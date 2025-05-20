@@ -5,8 +5,12 @@ Wrapper for Gemini (Google Generative AI) using google-generativeai library.
 """
 
 import os
+from dotenv import load_dotenv
 import google.generativeai as genai
 from typing import Optional
+
+# Load environment variables from .env file
+load_dotenv()
 
 GOOGLE_API_KEY = os.getenv("GOOGLE_API_KEY")
 

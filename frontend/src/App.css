@@ -114,3 +114,21 @@
     transform: rotate(360deg);
   }
 }
+
+/* Equal height cards for metadata results */
+.metadata-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+}
+
+.metadata-value {
+  flex-grow: 1;
+}
+
+/* For small screens, adjust the height */
+@media (max-width: 768px) {
+  .metadata-card {
+    min-height: 100px;
+  }
+}

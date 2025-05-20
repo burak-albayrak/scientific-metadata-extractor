@@ -92,9 +92,9 @@ const FileItem = ({ file, onRemove, status, results }) => {
         {status !== 'processing' && (
           <button
             onClick={() => onRemove(file)}
-            className="text-gray-400 hover:text-red-500 transition-colors duration-75"
+            className="text-blue-500 hover:text-red-500 bg-blue-50 hover:bg-red-50 p-1 rounded-full transition-all duration-200"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </button>
@@ -380,81 +380,113 @@ function App() {
                   </div>
                   
                   <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                      {Object.entries(data).map(([key, value], index) => {
-                        // Group important fields in first column, others in second
-                        const isImportantField = ['title', 'authors', 'doi', 'publication_year', 'objective', 'methodology_type'].includes(key);
-                        const columnClass = isImportantField ? "col-span-1 md:col-span-2" : "col-span-1";
+                    <div className="grid grid-cols-1 gap-6">
+                      {(() => {
+                        // İstenen sıralama
+                        const fieldOrder = [
+                          'doi',
+                          'title',
+                          'authors',
+                          'objective', // purpose of the article
+                          'findings', // key findings
+                          'limitations',
+                          'study_region',
+                          'methodology_type', // methodology
+                          'publication_year', // year
+                          'focus_topic', // focused topic
+                          'recommendations'
+                        ];
                         
-                        return (
-                          <div 
-                            key={key} 
-                            className={`${columnClass} p-4 rounded-lg border border-gray-100 transition-all duration-200 hover:border-blue-100 hover:bg-blue-50/30 ${
-                              isImportantField ? 'bg-blue-50/20' : 'bg-white'
-                            }`}
-                            style={{ 
-                              animation: `fadeIn 0.5s ease forwards`, 
-                              animationDelay: `${index * 0.05}s`,
-                              opacity: 0
-                            }}
-                          >
-                            <div className="text-sm font-medium text-blue-600 mb-2 capitalize flex items-center">
-                              {key === 'title' && (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                </svg>
-                              )}
-                              {key === 'authors' && (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                </svg>
-                              )}
-                              {key === 'doi' && (
-                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" />
-                                </svg>
-                              )}
-                              {key.replace(/_/g, ' ')}
-                            </div>
-                            <div className="text-gray-800 break-words overflow-x-auto">
-                              {Array.isArray(value) ? (
-                                <div className="flex flex-wrap gap-2">
-                                  {value.map((item, i) => (
-                                    <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm inline-flex items-center">
-                                      {key === 'authors' && (
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                      )}
-                                      {item}
-                                    </span>
-                                  ))}
-                                </div>
-                              ) : typeof value === "object" ? (
-                                <pre className="text-sm bg-gray-50 p-3 rounded">{JSON.stringify(value, null, 2)}</pre>
-                              ) : key === 'doi' ? (
-                                <a 
-                                  href={value.startsWith('http') ? value : `https://doi.org/${value}`} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="text-blue-600 hover:underline inline-flex items-center"
-                                >
-                                  {value}
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                        // Sıralanmış alanları oluştur
+                        const sortedEntries = [];
+                        
+                        // Önce belirtilen sırada olan alanları ekle
+                        fieldOrder.forEach(field => {
+                          if (data[field] !== undefined) {
+                            sortedEntries.push([field, data[field]]);
+                          }
+                        });
+                        
+                        // Sonra diğer tüm alanları ekle (belirtilmeyen alanlar)
+                        Object.entries(data).forEach(([key, value]) => {
+                          if (!fieldOrder.includes(key)) {
+                            sortedEntries.push([key, value]);
+                          }
+                        });
+                        
+                        return sortedEntries.map(([key, value], index) => {
+                          const isImportantField = ['title', 'authors', 'doi', 'publication_year', 'objective', 'findings'].includes(key);
+                          
+                          return (
+                            <div 
+                              key={key} 
+                              className={`p-4 rounded-lg border border-gray-100 transition-all duration-200 hover:border-blue-100 hover:bg-blue-50/30 ${
+                                isImportantField ? 'bg-blue-50/20' : 'bg-white'
+                              } metadata-card`}
+                              style={{ 
+                                animation: `fadeIn 0.5s ease forwards`, 
+                                animationDelay: `${index * 0.05}s`,
+                                opacity: 0
+                              }}
+                            >
+                              <div className="text-sm font-medium text-blue-600 mb-2 capitalize flex items-center">
+                                {key === 'title' && (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                                   </svg>
-                                </a>
-                              ) : key === 'title' ? (
-                                <h3 className="font-medium">{value}</h3>
-                              ) : key === 'publication_year' ? (
-                                <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded inline-block">{value}</span>
-                              ) : (
-                                <span>{value}</span>
-                              )}
+                                )}
+                                {key === 'authors' && (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                  </svg>
+                                )}
+                                {key === 'doi' && (
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
+                                )}
+                                {key.replace(/_/g, ' ')}
+                              </div>
+                              <div className="text-gray-800 break-words overflow-x-auto metadata-value">
+                                {Array.isArray(value) ? (
+                                  <div className="flex flex-wrap gap-2">
+                                    {value.map((item, i) => (
+                                      <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm inline-flex items-center">
+                                        {key === 'authors' && (
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                          </svg>
+                                        )}
+                                        {item}
+                                      </span>
+                                    ))}
+                                  </div>
+                                ) : typeof value === "object" ? (
+                                  <pre className="text-sm bg-gray-50 p-3 rounded h-full overflow-y-auto">{JSON.stringify(value, null, 2)}</pre>
+                                ) : key === 'doi' ? (
+                                  <a 
+                                    href={value.startsWith('http') ? value : `https://doi.org/${value}`} 
+                                    target="_blank" 
+                                    rel="noopener noreferrer"
+                                    className="text-blue-600 hover:underline inline-flex items-center"
+                                  >
+                                    {value}
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                    </svg>
+                                  </a>
+                                ) : key === 'title' ? (
+                                  <h3 className="font-medium">{value}</h3>
+                                ) : key === 'publication_year' ? (
+                                  <div className="h-full flex items-start">{value || "Not specified"}</div>
+                                ) : (
+                                  <div className="h-full flex items-start">{value || "Not specified"}</div>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        });
+                      })()}
                     </div>
                   </div>
                   
