@@ -30,7 +30,7 @@ def build_prompt(article_text: str, json_schema: str) -> str:
     """
     Builds the full prompt by inserting the schema and article into the prompt template.
     """
-    template_path = Path("docs/prompt_template.md")
+    template_path = Path(__file__).resolve().parent.parent.parent / "docs" / "prompt_template.md"
     with open(template_path, "r", encoding="utf-8") as f:
         template = f.read()
 
