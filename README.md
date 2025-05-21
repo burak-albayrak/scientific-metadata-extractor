@@ -14,6 +14,7 @@ A web application that automatically extracts structured metadata from scientifi
 - **Batch Processing**: Process multiple PDFs in sequence
 - **Structured Results**: View extracted metadata in an organized layout
 - **Responsive Design**: Works on desktop and mobile devices
+- **Excel Export**: Extracted metadata can be downloaded as an Excel (.xlsx) file for each processed PDF
 
 ## 📋 Extracted Metadata
 
@@ -122,6 +123,7 @@ If any item is not found in the text, the output states: "Not specified".
 4. Wait for the files to be processed (progress is shown)
 5. View the structured metadata results for each document
 6. Add or remove files as needed and repeat the process
+7. For each processed PDF, click the "Download as Excel" button to save the extracted metadata as an Excel file
 
 ## 🌐 API Reference
 

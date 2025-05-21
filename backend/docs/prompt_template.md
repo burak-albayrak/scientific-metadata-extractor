@@ -1,4 +1,4 @@
-# Prompt Template (Version 1)
+# Prompt Template (Version 2)
 
 You are an expert research assistant. Extract the following metadata from the provided scientific article text.
 
@@ -8,12 +8,19 @@ Return **only** valid JSON matching the exact schema below. Do not add any extra
 
 ## Instructions
 
-1. If a field is missing, write `"Not specified"`.
-2. Use an array of strings for `"authors"`.
-3. Ensure `"publication_year"` is an integer (e.g., 2022).
-4. Do not add any explanation or extra description.
-5. Do not use Markdown formatting.
-6. Keep the keys exactly as provided in the schema.
+1. **IMPORTANT**: If a field is present in the text but not under a specific heading, you must still extract and return it. Look for implicit mentions or related content.
+2. If a field is not explicitly labeled but the information exists in the text (e.g., country names for study_region, limitations mentioned in discussion), extract it from context.
+3. Only use "Not specified" when you are certain the information is completely absent from the text.
+4. Use an array of strings for "authors".
+5. Ensure "publication_year" is an integer (e.g., 2022).
+6. Do not add any explanation or extra description.
+7. Do not use Markdown formatting.
+8. Keep the keys exactly as provided in the schema.
+
+## Examples of Implicit Information
+- If authors discuss "conducting interviews in Spain" but never explicitly say "study region: Spain", still extract "Spain" as the study_region.
+- If text mentions "small sample size limited our findings", extract this as a limitation even if not in a "Limitations" section.
+- If researchers suggest "future work should explore X", include this in recommendations even without a dedicated section.
 
 ## Input
 
@@ -21,23 +28,5 @@ ARTICLE_TEXT:
 
 <ARTICLE_CONTENT>
 
-
-## Notes
-
-- `<JSON_SCHEMA>` will be inserted dynamically from the program.
-- `<ARTICLE_CONTENT>` will be inserted dynamically from parsed PDF text (truncated to ~15,000 characters if necessary).
-
-
-```
-def build_prompt(article_text: str, json_schema: str) -> str:
-    """
-    Builds the full prompt by inserting the schema and article into template.
-    """
-    with open("docs/prompt_template.md", "r", encoding="utf-8") as f:
-        template = f.read()
-
-    # Token sınırını geçmemek için metni kes
-    trimmed_text = article_text[:15000]
-
-    return template.replace("<JSON_SCHEMA>", json_schema).replace("<ARTICLE_CONTENT>", trimmed_text)
-```
+## Important Reminder
+Return ONLY valid JSON. Do not include any explanation or commentary before or after the JSON.

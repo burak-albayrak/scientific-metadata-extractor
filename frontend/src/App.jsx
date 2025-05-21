@@ -111,6 +111,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [animateIn, setAnimateIn] = useState(false);
+  const [isDownloadingExcel, setIsDownloadingExcel] = useState({});
 
   useEffect(() => {
     // Trigger entrance animation after component mounts
@@ -416,75 +417,75 @@ function App() {
                         
                         return sortedEntries.map(([key, value], index) => {
                           const isImportantField = ['title', 'authors', 'doi', 'publication_year', 'objective', 'findings'].includes(key);
-                          
-                          return (
-                            <div 
-                              key={key} 
+                        
+                        return (
+                          <div 
+                            key={key} 
                               className={`p-4 rounded-lg border border-gray-100 transition-all duration-200 hover:border-blue-100 hover:bg-blue-50/30 ${
-                                isImportantField ? 'bg-blue-50/20' : 'bg-white'
+                              isImportantField ? 'bg-blue-50/20' : 'bg-white'
                               } metadata-card`}
-                              style={{ 
-                                animation: `fadeIn 0.5s ease forwards`, 
-                                animationDelay: `${index * 0.05}s`,
-                                opacity: 0
-                              }}
-                            >
-                              <div className="text-sm font-medium text-blue-600 mb-2 capitalize flex items-center">
-                                {key === 'title' && (
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                  </svg>
-                                )}
-                                {key === 'authors' && (
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-                                  </svg>
-                                )}
-                                {key === 'doi' && (
-                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            style={{ 
+                              animation: `fadeIn 0.5s ease forwards`, 
+                              animationDelay: `${index * 0.05}s`,
+                              opacity: 0
+                            }}
+                          >
+                            <div className="text-sm font-medium text-blue-600 mb-2 capitalize flex items-center">
+                              {key === 'title' && (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                </svg>
+                              )}
+                              {key === 'authors' && (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                                </svg>
+                              )}
+                              {key === 'doi' && (
+                                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                  </svg>
-                                )}
-                                {key.replace(/_/g, ' ')}
-                              </div>
-                              <div className="text-gray-800 break-words overflow-x-auto metadata-value">
-                                {Array.isArray(value) ? (
-                                  <div className="flex flex-wrap gap-2">
-                                    {value.map((item, i) => (
-                                      <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm inline-flex items-center">
-                                        {key === 'authors' && (
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                          </svg>
-                                        )}
-                                        {item}
-                                      </span>
-                                    ))}
-                                  </div>
-                                ) : typeof value === "object" ? (
-                                  <pre className="text-sm bg-gray-50 p-3 rounded h-full overflow-y-auto">{JSON.stringify(value, null, 2)}</pre>
-                                ) : key === 'doi' ? (
-                                  <a 
-                                    href={value.startsWith('http') ? value : `https://doi.org/${value}`} 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="text-blue-600 hover:underline inline-flex items-center"
-                                  >
-                                    {value}
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                                    </svg>
-                                  </a>
-                                ) : key === 'title' ? (
-                                  <h3 className="font-medium">{value}</h3>
-                                ) : key === 'publication_year' ? (
-                                  <div className="h-full flex items-start">{value || "Not specified"}</div>
-                                ) : (
-                                  <div className="h-full flex items-start">{value || "Not specified"}</div>
-                                )}
-                              </div>
+                                </svg>
+                              )}
+                              {key.replace(/_/g, ' ')}
                             </div>
-                          );
+                              <div className="text-gray-800 break-words overflow-x-auto metadata-value">
+                              {Array.isArray(value) ? (
+                                <div className="flex flex-wrap gap-2">
+                                  {value.map((item, i) => (
+                                    <span key={i} className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm inline-flex items-center">
+                                      {key === 'authors' && (
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                      )}
+                                      {item}
+                                    </span>
+                                  ))}
+                                </div>
+                              ) : typeof value === "object" ? (
+                                  <pre className="text-sm bg-gray-50 p-3 rounded h-full overflow-y-auto">{JSON.stringify(value, null, 2)}</pre>
+                              ) : key === 'doi' ? (
+                                <a 
+                                  href={value.startsWith('http') ? value : `https://doi.org/${value}`} 
+                                  target="_blank" 
+                                  rel="noopener noreferrer"
+                                  className="text-blue-600 hover:underline inline-flex items-center"
+                                >
+                                  {value}
+                                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                  </svg>
+                                </a>
+                              ) : key === 'title' ? (
+                                <h3 className="font-medium">{value}</h3>
+                              ) : key === 'publication_year' ? (
+                                  <div className="h-full flex items-start">{value || "Not specified"}</div>
+                              ) : (
+                                  <div className="h-full flex items-start">{value || "Not specified"}</div>
+                              )}
+                            </div>
+                          </div>
+                        );
                         });
                       })()}
                     </div>
@@ -499,6 +500,49 @@ function App() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 10l7-7m0 0l7 7m-7-7v18" />
                       </svg>
                       Back to top
+                    </button>
+                    {/* Download as Excel button with loading spinner */}
+                    <button
+                      onClick={async () => {
+                        setIsDownloadingExcel(prev => ({ ...prev, [fileName]: true }));
+                        try {
+                          const file = files.find(f => f.name === fileName);
+                          if (!file) return;
+                          const formData = new FormData();
+                          formData.append("file", file);
+                          const res = await fetch("http://127.0.0.1:5000/api/extract_excel", {
+                            method: "POST",
+                            body: formData,
+                          });
+                          if (res.ok) {
+                            const blob = await res.blob();
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement("a");
+                            a.href = url;
+                            a.download = `extracted_metadata_${file.name.replace(/\.[^/.]+$/, "")}.xlsx`;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                            window.URL.revokeObjectURL(url);
+                          }
+                        } finally {
+                          setIsDownloadingExcel(prev => ({ ...prev, [fileName]: false }));
+                        }
+                      }}
+                      disabled={isDownloadingExcel[fileName]}
+                      className={`ml-2 text-xs bg-blue-100 hover:bg-blue-200 text-blue-700 py-1 px-3 rounded-md transition-colors duration-75 border border-blue-200 inline-flex items-center ${isDownloadingExcel[fileName] ? 'opacity-60 cursor-not-allowed' : ''}`}
+                    >
+                      {isDownloadingExcel[fileName] ? (
+                        <svg className="animate-spin h-4 w-4 mr-1 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                      ) : (
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v16h16V4H4zm4 8h8m-4-4v8" />
+                        </svg>
+                      )}
+                      {isDownloadingExcel[fileName] ? 'Preparing...' : 'Download as Excel'}
                     </button>
                   </div>
                 </div>
