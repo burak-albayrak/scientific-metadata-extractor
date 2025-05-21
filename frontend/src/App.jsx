@@ -203,7 +203,7 @@ function App() {
         const formData = new FormData();
         formData.append("file", file);
 
-        const res = await fetch("http://127.0.0.1:5000/api/extract", {
+        const res = await fetch("https://scientific-metadata-extractor.onrender.com/api/extract", {
           method: "POST",
           body: formData,
         });
@@ -510,7 +510,7 @@ function App() {
                           if (!file) return;
                           const formData = new FormData();
                           formData.append("file", file);
-                          const res = await fetch("http://127.0.0.1:5000/api/extract_excel", {
+                          const res = await fetch("https://scientific-metadata-extractor.onrender.com/api/extract_excel", {
                             method: "POST",
                             body: formData,
                           });
