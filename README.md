@@ -7,6 +7,8 @@
 
 A web application that automatically extracts structured metadata from scientific PDFs using Google's Gemini AI model.
 
+🌐 **Live Demo**: [scientific-metadata-extractor.web.app](https://scientific-metadata-extractor.web.app)
+
 ## 🚀 Features
 
 - **PDF Analysis**: Upload scientific papers and extract key metadata automatically
